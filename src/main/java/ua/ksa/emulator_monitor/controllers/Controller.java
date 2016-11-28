@@ -91,7 +91,7 @@ public class Controller implements PropertyChangeListener {
             Socket socket = new Socket("localhost", 10505);
             receiver = new Receiver(socket);
             receiver.addListener(this);
-            Platform.runLater(receiver);
+            receiver.start();
             connectionStatus.setText("waiting for incoming message...");
             table.setItems(data);
         } catch (IOException e) {
@@ -101,7 +101,7 @@ public class Controller implements PropertyChangeListener {
 
     @FXML
     void disconnect() {
-//        receiver.interrupt();
+        receiver.interrupt();
     }
 
     @Override
