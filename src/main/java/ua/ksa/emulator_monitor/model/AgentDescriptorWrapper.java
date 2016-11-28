@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import ua.com.smiddle.cti.messages.model.messages.agent_events.AgentStates;
+import ua.com.smiddle.emulator.AgentDescriptor;
 
 /**
  * Created by srg on 11/27/16.
@@ -15,6 +16,13 @@ public class AgentDescriptorWrapper extends AgentDescriptor {
     private ObjectProperty<AgentStates> stateProperty;
 
     public AgentDescriptorWrapper() {
+    }
+
+    public AgentDescriptorWrapper(AgentDescriptor agentDescriptor){
+        setMonitorID(agentDescriptor.getMonitorID());
+        setAgentID(agentDescriptor.getAgentID());
+        setState(agentDescriptor.getState());
+        setAgentInstrument(agentDescriptor.getAgentInstrument());
         this.agentIdProperty = new SimpleStringProperty(getAgentID());
         this.instrumentProperty = new SimpleStringProperty(getAgentInstrument());
         this.stateProperty = new SimpleObjectProperty<>(getState());

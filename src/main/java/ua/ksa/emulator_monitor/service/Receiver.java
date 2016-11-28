@@ -2,39 +2,80 @@ package ua.ksa.emulator_monitor.service;
 
 import ua.ksa.emulator_monitor.model.AgentDescriptorWrapper;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.Collection;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by srg on 11/27/16.
  */
-public class Receiver extends Thread{
+public class Receiver extends Thread {
     private Socket socket;
-    private BlockingQueue queue = new ArrayBlockingQueue(1);
+    private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private int exceptionCount = 0;
 
-    @Override
-    public void run() {
-        Collection<AgentDescriptorWrapper>  message = read();
+
+    //Constructor
+    public Receiver(Socket socket) {
+        this.socket = socket;
+        System.out.println("Receiver created");
     }
 
-    private Collection<AgentDescriptorWrapper> read() {
-        try {
-            ObjectInputStream stream = new ObjectInputStream(socket.getInputStream());
-            Collection<AgentDescriptorWrapper> wrapper;
-            while (true) {
-               return wrapper = (Collection<AgentDescriptorWrapper>) stream.readObject();
-            }
 
+    //Getters and setters
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+
+    //Methods
+    @Override
+    public void run() {
+        try {
+            Collection<AgentDescriptorWrapper> message;
+            ObjectInputStream stream = new ObjectInputStream(socket.getInputStream());
+            while (!isInterrupted() && exceptionCount <= 5) {
+                System.out.println("connected");
+                try {
+                    message = read(stream);
+                    System.out.println(message);
+                    if (message != null) {
+                        pcs.firePropertyChange("new_data", null, message);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exceptionCount++;
+                }
+            }
+            socket.close();
+            pcs.firePropertyChange("system_event", null, "disconnected");
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
-        return null;
+        System.out.println("disconnected");
+    }
+
+    private Collection<AgentDescriptorWrapper> read(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        while (true) {
+            Object o = stream.readObject();
+            return (Collection<AgentDescriptorWrapper>) o;
+        }
+    }
+
+    public void addListener(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
+    }
+
+    private void removeListener(PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(listener);
+
     }
 
 }

@@ -1,12 +1,11 @@
 package ua.ksa.emulator_monitor;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ua.ksa.emulator_monitor.controllers.Controller;
-import ua.ksa.emulator_monitor.model.AgentDescriptor;
 
 
 /**
@@ -14,7 +13,6 @@ import ua.ksa.emulator_monitor.model.AgentDescriptor;
  */
 public class MainApplication extends Application {
 
-    private ObservableList<AgentDescriptor> personData = FXCollections.observableArrayList();
 
     public static void main(String[] args) throws Exception {
         launch(args);
@@ -22,11 +20,20 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(MainApplication.class.getResource("fxml/view.fxml"));
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            Parent parent = loader.load(getClass().getResource("controllers/view.fxml"));
+            Scene scene = new Scene(parent);
+            primaryStage.setTitle("CTI EMULATOR MONITOR");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            primaryStage.setOnCloseRequest(event -> {
+                System.out.println("closing application");
+                Platform.exit();
+            });
 
-        Controller controller = loader.getController();
-//        controller.
-
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
