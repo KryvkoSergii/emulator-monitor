@@ -80,9 +80,14 @@ public class Controller implements PropertyChangeListener {
         agentId.setCellValueFactory(cellData -> cellData.getValue().getAgentIdProperty());
         instrument.setCellValueFactory(cellData -> cellData.getValue().getInstrumentProperty());
         state.setCellValueFactory(cellData -> cellData.getValue().getStateProperty());
-//
-//        agentNumber.setText(agentNumberValue.getValue().toString());
-//        remoteAddress.setText(remoteAddressValue.getValue());
+        agentNumber.textProperty().bind(agentNumberValue.asString());
+        remoteAddress.textProperty().bind(remoteAddressValue);
+        connectionStatus.textProperty().bind(connectionStatusValue);
+        lastUpdate.textProperty().bind(lastUpdateValue);
+        remoteAddressValue.setValue("...");
+        connectionStatusValue.setValue("...");
+        lastUpdateValue.setValue("...");
+
     }
 
     @FXML
@@ -92,7 +97,7 @@ public class Controller implements PropertyChangeListener {
             receiver = new Receiver(socket);
             receiver.addListener(this);
             receiver.start();
-            connectionStatus.setText("waiting for incoming message...");
+//            connectionStatusValue.setValue("waiting for incoming message...");
             table.setItems(data);
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,11 +117,9 @@ public class Controller implements PropertyChangeListener {
                 System.out.println("wrappers=" + wrappers);
                 if (wrappers != null) {
                     updating(wrappers);
-                    agentNumber.setText(String.valueOf(wrappers.size()));
-                    remoteAddress.setText(receiver.getSocket().getRemoteSocketAddress().toString());
-//                    agentNumberValue.set(wrappers.size());
-//                    remoteAddressValue.set(receiver.getSocket().getRemoteSocketAddress().toString());
-//                    lastUpdateValue.set(LocalDateTime.now().format(formatter));
+//                    agentNumberValue.setValue(wrappers.size());
+//                    remoteAddressValue.setValue(receiver.getSocket().getRemoteSocketAddress().toString());
+//                    lastUpdateValue.setValue(LocalDateTime.now().format(formatter));
                 }
                 break;
             }
